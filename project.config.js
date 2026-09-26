@@ -40,6 +40,19 @@ module.exports = {
       titleFields: ['itemName', 'problem']
     }
   },
+  repaint: {
+    minDryingMinutes: 240,
+    maxLightDeviation: 2,
+    colorStandards: [
+      { play: '火焰山', role: '武生', colorCode: '朱红-02', lightValue: 8 },
+      { play: '火焰山', colorCode: '石青-01', lightValue: 6 },
+      { play: '大闹天宫', role: '武生', colorCode: '金黄-01', lightValue: 7 }
+    ],
+    paintBatches: [
+      { batchNo: '漆批-2026-09A', expiresAt: '2027-03-01' },
+      { batchNo: '漆批-2026-05B', expiresAt: '2026-08-31' }
+    ]
+  },
   seed: [
     {
       collection: 'puppetHeads',
@@ -71,6 +84,9 @@ module.exports = {
   examples: [
     'GET /api/puppetHeads?play=火焰山&status=可演出 查询某剧目可用偶头',
     'POST /api/tourBoxes 创建巡演装箱单',
-    'POST /api/lossReports 登记返场缺损或遗失'
+    'POST /api/lossReports 登记返场缺损或遗失',
+    'POST /api/repaint/requests 补妆登记（自动判定，不合格转待复检）',
+    'POST /api/repaint/requests/:id/review 另一名化妆师干燥满四小时后复看',
+    'POST /api/repaint/requests/:id/change 更换色号或批次（旧结论失效并留档）'
   ]
 };

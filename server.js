@@ -188,6 +188,9 @@ function applyQuery(records, query) {
 
 initDb();
 
+// 补妆复核流程：请求入口在 repaint/routes.js，判定与档案分别在 repaint/judgment.js、repaint/archive.js
+app.use('/api/repaint', require('./repaint/routes'));
+
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: config.title, port: PORT });
 });
