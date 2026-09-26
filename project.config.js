@@ -6,7 +6,7 @@ module.exports = {
     puppetHeads: {
       label: '偶头档案',
       defaultStatus: '可演出',
-      statuses: ['可演出', '待修补', '修补中', '试演中', '不可演出', '已装箱'],
+      statuses: ['可演出', '待修补', '修补中', '待复检', '待复看', '试演中', '不可演出', '已装箱'],
       required: ['role', 'play', 'paintStatus', 'mechanism', 'boxNo'],
       titleFields: ['role', 'play'],
       defaults: { currentUsable: true }
@@ -57,6 +57,36 @@ module.exports = {
       note: '返场发现掉彩'
     },
     {
+      collection: 'puppetHeads',
+      id: 'head-seed-2',
+      status: '可演出',
+      data: {
+        role: '武生',
+        play: '火焰山',
+        paintStatus: '完好',
+        mechanism: '正常',
+        accessories: ['红缨冠', '短靠'],
+        boxNo: '木箱乙-05',
+        currentUsable: true
+      },
+      note: '巡演备选武生甲'
+    },
+    {
+      collection: 'puppetHeads',
+      id: 'head-seed-3',
+      status: '可演出',
+      data: {
+        role: '武生',
+        play: '火焰山',
+        paintStatus: '完好',
+        mechanism: '正常',
+        accessories: ['红缨冠', '短靠'],
+        boxNo: '木箱乙-06',
+        currentUsable: true
+      },
+      note: '巡演备选武生乙'
+    },
+    {
       collection: 'accessories',
       id: 'accessory-seed-1',
       status: '在库',
@@ -70,6 +100,9 @@ module.exports = {
   ],
   examples: [
     'GET /api/puppetHeads?play=火焰山&status=可演出 查询某剧目可用偶头',
+    'POST /api/makeupReviews 补妆登记（色号/批次/试灯初判，异常转待复检）',
+    'POST /api/makeupReviews/:id/recheck 另一人干燥满四小时复看',
+    'GET /api/makeupReviews/archive 补妆复核历史留档',
     'POST /api/tourBoxes 创建巡演装箱单',
     'POST /api/lossReports 登记返场缺损或遗失'
   ]

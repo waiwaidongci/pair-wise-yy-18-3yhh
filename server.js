@@ -1,35 +1,16 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { execFileSync } = require('child_process');
 const { randomUUID } = require('crypto');
 const config = require('./project.config');
+const db = require('./db');
+const makeupRoutes = require('./makeupRoutes');
+const makeupArchive = require('./makeupArchive');
 
 const app = express();
 const PORT = process.env.PORT || config.port;
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'app.db');
 
 app.use(express.json({ limit: '2mb' }));
 
-function sqlValue(value) {
-  if (value === null || value === undefined) return 'NULL';
-  return "'" + String(value).replaceAll("'", "''") + "'";
-}
-
-function runSql(sql) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  return execFileSync('sqlite3', [DB_FILE], {
-    input: sql,
-    encoding: 'utf8'
-  });
-}
-
-function select(sql) {
-  const output = runSql('.mode json\n' + sql);
-  if (!output.trim()) return [];
-  return JSON.parse(output);
-}
+const { exec: runSql, query: select, sqlValue } = db;
 
 function now() {
   return new Date().toISOString();
@@ -186,8 +167,6 @@ function applyQuery(records, query) {
   });
 }
 
-initDb();
-
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: config.title, port: PORT });
 });
@@ -200,6 +179,9 @@ app.get('/api/meta', (req, res) => {
     examples: config.examples || []
   });
 });
+
+// 补妆复核流程入口（须在通用 /api/:collection 之前注册）
+app.use('/api', makeupRoutes);
 
 app.get('/api/:collection', (req, res, next) => {
   try {
@@ -358,6 +340,16 @@ app.use((error, req, res, next) => {
   res.status(error.status || 500).json({ error: error.message || 'server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(config.title + ' API running at http://localhost:' + PORT);
+async function start() {
+  await db.initDatabase();
+  initDb();
+  makeupArchive.initMakeupArchive();
+  app.listen(PORT, () => {
+    console.log(config.title + ' API running at http://localhost:' + PORT + ' (sqlite: ' + (db.useCli ? 'cli' : 'sql.js') + ')');
+  });
+}
+
+start().catch((error) => {
+  console.error('启动失败：', error);
+  process.exit(1);
 });
